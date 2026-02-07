@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Crypto Intelligence Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+ --bg:#0b0f1a;
+ --card:#111827;
+ --accent:#22c55e;
+ --accent2:#38bdf8;
+ --danger:#ef4444;
+ --warn:#facc15;
+ --text:#e5e7eb;
+ --muted:#9ca3af;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:radial-gradient(circle at top,#0f172a,#020617);
+ color:var(--text);
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ text-align:center;
+ padding:14px;
+}
+h1{
+ font-size:1.4rem;
+ margin:6px 0 14px;
+ font-weight:700;
+ letter-spacing:.3px;
+}
+button{
+ background:linear-gradient(135deg,var(--accent),#16a34a);
+ color:#020617;
+ border:none;
+ border-radius:10px;
+ padding:12px 22px;
+ font-size:.95rem;
+ font-weight:700;
+ cursor:pointer;
+ box-shadow:0 8px 20px rgba(34,197,94,.25);
+ transition:.15s;
+}
+button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.card{
+ background:linear-gradient(180deg,#0b1220,#020617);
+ border-radius:16px;
+ padding:14px;
+ margin:10px auto;
+ max-width:1000px;
+ box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+.card h3{
+ margin:0 0 8px;
+ font-size:1rem;
+ font-weight:700;
+ letter-spacing:.3px;
+}
+.badge{
+ display:inline-block;
+ padding:4px 10px;
+ border-radius:999px;
+ font-size:.7rem;
+ font-weight:700;
+ background:rgba(34,197,94,.15);
+ color:var(--accent);
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+ gap:10px;
+ margin-top:10px;
+}
+.kpi{
+ background:#020617;
+ border-radius:14px;
+ padding:10px;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.kpi .label{
+ font-size:.65rem;
+ color:var(--muted);
+ letter-spacing:.4px;
+}
+.kpi .value{
+ font-size:1rem;
+ font-weight:700;
+ margin-top:2px;
+}
+.kpi .accent{color:var(--accent)}
+.kpi .blue{color:var(--accent2)}
+input{
+ background:#020617;
+ border:1px solid rgba(255,255,255,.06);
+ border-radius:10px;
+ padding:8px 10px;
+ color:var(--text);
+ width:110px;
+ font-size:.85rem;
+ text-align:center;
+ outline:none;
+}
+input:focus{border-color:var(--accent)}
+.small{
+ font-size:.7rem;
+ color:var(--muted);
+}
+.row{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+ justify-content:center;
+ align-items:center;
+ margin-top:8px;
+}
+.table-wrap{
+ margin-top:12px;
+ overflow-x:auto;
+ border-radius:14px;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
+table{
+ width:100%;
+ border-collapse:collapse;
+ min-width:620px;
+ font-size:.75rem;
+ background:#020617;
+}
+thead{
+ background:rgba(255,255,255,.03);
+}
+th,td{
+ padding:9px 8px;
+ border-bottom:1px solid rgba(255,255,255,.05);
+ white-space:nowrap;
+}
+th{
+ font-size:.65rem;
+ letter-spacing:.4px;
+ color:var(--muted);
+}
+tbody tr{
+ cursor:pointer;
+ transition:.12s;
+}
+tbody tr:hover{
+ background:rgba(255,255,255,.04);
+}
+.verde{color:var(--accent)}
+.vermelho{color:var(--danger)}
+.amarelo{color:var(--warn)}
+.azul{color:var(--accent2)}
+canvas{
+ margin-top:12px;
+ background:#020617;
+ border-radius:14px;
+ padding:6px;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.footer{
+ font-size:.6rem;
+ color:var(--muted);
+ margin-top:10px;
+ letter-spacing:.3px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📊 Crypto Intelligence Pro</h1>
+
+<button onclick="iniciar()">▶ ATIVAR SISTEMA</button>
+
+<!-- DCA CARD -->
+<div class="card">
+ <h3>📅 Plano DCA Inteligente — BTC <span class="badge">Automático</span></h3>
+ <div id="hojeDCA" class="small"></div>
+
+ <div class="grid">
+  <div class="kpi">
+   <div class="label">Data</div>
+   <div class="value" id="dataHoje">–</div>
+  </div>
+  <div class="kpi">
+   <div class="label">Sugestão de aporte</div>
+   <div class="value accent" id="sugestaoAporte">–</div>
+  </div>
+  <div class="kpi">
+   <div class="label">Melhor horário</div>
+   <div class="value blue" id="melhorHora">–</div>
+  </div>
+  <div class="kpi">
+   <div class="label">Último aporte</div>
+   <div class="value" id="ultimoAporte">–</div>
+  </div>
+ </div>
+
+ <div class="row">
+  <div>
+   <div class="small">Valor do aporte (editável)</div>
+   <input id="valorAporte" type="number" step="10" placeholder="R$">
+  </div>
+  <button onclick="registrarAporte()">💾 REGISTRAR</button>
+ </div>
+</div>
+
+<!-- ANÁLISE -->
+<div class="card">
+ <h3>📈 Análise de Criptomoedas</h3>
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr>
+     <th>Cripto</th>
+     <th>Preço</th>
+     <th>Tendência</th>
+     <th>Potencial</th>
+     <th>Horizonte</th>
+    </tr>
+   </thead>
+   <tbody id="tabela"></tbody>
+  </table>
+ </div>
+
+ <canvas id="grafico" height="120"></canvas>
+</div>
+
+<div class="footer">Crypto Intelligence Pro • Sistema educacional • Sem recomendação financeira</div>
+
+<script>
+/* =========================
+   CONFIGURAÇÕES GERAIS
+========================= */
+const AUTOR = "Samuel Ribeiro da Silva";
+const pares = [
+ "BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","XRPUSDT","ADAUSDT","AVAXUSDT",
+ "DOTUSDT","LINKUSDT","MATICUSDT","NEARUSDT","ATOMUSDT","INJUSDT","OPUSDT",
+ "ARBUSDT","AAVEUSDT","UNIUSDT","RNDRUSDT","FETUSDT","DOGEUSDT","SHIBUSDT"
+];
+const diasDCA = [6,0,1]; // sábado, domingo, segunda
+
+let iniciado = false;
+let chart = null;
+let ultimoResumo = {};
+let ultimoAlarmeMinuto = null;
+
+/* =========================
+   INICIAR SISTEMA
+========================= */
+function iniciar(){
+ if(iniciado) return;
+ iniciado = true;
+
+ verificarDCA(true);
+ atualizar();
+ setInterval(atualizar, 30000); // atualização de dados (30s)
+ setInterval(verificarAlarmeVoz, 60000); // 🔊 fala a cada 1 minuto
+
+ falar("Sistema profissional iniciado. Análise automática e DCA inteligente ativados.");
+}
+
+/* =========================
+   DCA AUTOMÁTICO
+========================= */
+function verificarDCA(falarAgora=false){
+ const hoje = new Date();
+ const dia = hoje.getDay();
+ const data = hoje.toLocaleDateString("pt-BR");
+
+ document.getElementById("dataHoje").innerText = data;
+
+ const msg = document.getElementById("hojeDCA");
+
+ if(diasDCA.includes(dia)){
+  msg.innerHTML = `📢 Hoje (${data}) é dia de <b>comprar BTC</b>.`;
+  if(falarAgora) falar(`Hoje é dia de comprar Bitcoin. Data ${data}.`);
+  sugerirAporte();
+  sugerirHora();
+ }else{
+  msg.innerHTML = `Hoje (${data}) não é dia programado de DCA.`;
+ }
+}
+
+/* =========================
+   SUGESTÃO DE APORTE
+========================= */
+function sugerirAporte(){
+ const base = Number(localStorage.getItem("aporteBase")) || 100;
+ const fator = 1 + Math.random()*0.5; // 100% a 150%
+ const sugestao = Math.round(base * fator);
+
+ document.getElementById("sugestaoAporte").innerText = `R$ ${sugestao}`;
+ localStorage.setItem("sugestaoHoje", sugestao);
+}
+
+/* =========================
+   MELHOR HORÁRIO
+========================= */
+function sugerirHora(){
+ const hora = new Date().getHours();
+ let melhor = "entre 10h e 13h";
+
+ if(hora < 6) melhor = "entre 8h e 11h";
+ else if(hora < 12) melhor = "entre 12h e 15h";
+ else if(hora < 18) melhor = "entre 19h e 22h";
+ else melhor = "entre 22h e 1h";
+
+ document.getElementById("melhorHora").innerText = melhor;
+}
+
+/* =========================
+   REGISTRAR APORTE
+========================= */
+function registrarAporte(){
+ const valor = Number(document.getElementById("valorAporte").value);
+ if(!valor || valor <= 0) return alert("Digite um valor válido.");
+
+ const hoje = new Date().toLocaleDateString("pt-BR");
+ const historico = JSON.parse(localStorage.getItem("historicoAportes") || "[]");
+ historico.push({data:hoje, valor});
+ localStorage.setItem("historicoAportes", JSON.stringify(historico));
+ localStorage.setItem("aporteBase", valor);
+
+ document.getElementById("ultimoAporte").innerText = `R$ ${valor}`;
+ falar(`Aporte de ${valor} reais registrado com sucesso.`);
+ alert("Aporte salvo!");
+}
+
+/* =========================
+   ALARME DE VOZ A CADA 1 MIN
+========================= */
+function verificarAlarmeVoz(){
+ const agora = new Date();
+ const minutoAtual = agora.getMinutes();
+
+ if(minutoAtual === ultimoAlarmeMinuto) return;
+ ultimoAlarmeMinuto = minutoAtual;
+
+ const dia = agora.getDay();
+ const data = agora.toLocaleDateString("pt-BR");
+
+ if(diasDCA.includes(dia)){
+  const sugestao = localStorage.getItem("sugestaoHoje") || "valor programado";
+  const hora = document.getElementById("melhorHora").innerText || "horário recomendado";
+  falar(`Lembrete. Hoje ${data} é dia de comprar Bitcoin. Sugestão de aporte ${sugestao} reais. Melhor horário ${hora}.`);
+ }
+}
+
+/* =========================
+   ATUALIZAR CRIPTOS
+========================= */
+async function atualizar(){
+ const tbody = document.getElementById("tabela");
+ tbody.innerHTML = "";
+
+ for(const par of pares){
+  try{
+   const dados = await fetch(
+    `https://api.binance.com/api/v3/klines?symbol=${par}&interval=1d&limit=260`
+   ).then(r=>r.json());
+
+   const closes = dados.map(c=>+c[4]);
+   const preco = closes.at(-1);
+
+   const ema50 = calcEMA(closes,50);
+   const ema200 = calcEMA(closes,200);
+   const rsi = calcRSI(closes.slice(-60),14);
+   const slope = closes.at(-1) - closes.at(-30);
+
+   let tendencia="LATERAL", potencial="NEUTRO", tempo="–", classe="amarelo";
+
+   if(ema50>ema200 && rsi>60 && slope>0){
+    tendencia="ALTA"; potencial="SUBIDA FORTE"; tempo="3 a 12 meses"; classe="verde";
+   }
+   else if(ema50>ema200){
+    tendencia="ALTA"; potencial="SUBIDA MODERADA"; tempo="2 a 6 meses"; classe="azul";
+   }
+   else if(ema50<ema200 && rsi<40 && slope<0){
+    tendencia="BAIXA"; potencial="QUEDA FORTE"; tempo="3 a 12 meses"; classe="vermelho";
+   }
+   else if(ema50<ema200){
+    tendencia="BAIXA"; potencial="QUEDA MODERADA"; tempo="2 a 6 meses"; classe="vermelho";
+   }
+
+   tbody.innerHTML += `
+   <tr onclick="grafico('${par}')">
+    <td>${par}</td>
+    <td>${preco.toFixed(4)}</td>
+    <td>${tendencia}</td>
+    <td class="${classe}">${potencial}</td>
+    <td>${tempo}</td>
+   </tr>`;
+
+   const resumoAtual = `${tendencia}-${potencial}-${tempo}`;
+   if(ultimoResumo[par] !== resumoAtual){
+    ultimoResumo[par] = resumoAtual;
+   }
+
+  }catch(e){ console.log("Erro em", par); }
+ }
+}
+
+/* =========================
+   GRÁFICO
+========================= */
+async function grafico(par){
+ const dados = await fetch(
+  `https://api.binance.com/api/v3/klines?symbol=${par}&interval=1d&limit=120`
+ ).then(r=>r.json());
+
+ const closes = dados.map(c=>+c[4]);
+
+ if(chart) chart.destroy();
+ chart = new Chart(document.getElementById("grafico"),{
+  type:"line",
+  data:{
+   labels:closes.map((_,i)=>i),
+   datasets:[{data:closes,borderWidth:2,pointRadius:0}]
+  },
+  options:{
+   plugins:{legend:{display:false}},
+   scales:{x:{display:false}}
+  }
+ });
+}
+
+/* =========================
+   INDICADORES
+========================= */
+function calcEMA(p,n){
+ const k = 2/(n+1);
+ let ema = p[0];
+ for(let i=1;i<p.length;i++) ema = p[i]*k + ema*(1-k);
+ return ema;
+}
+
+function calcRSI(p,n){
+ let g=0,l=0;
+ for(let i=p.length-n-1;i<p.length-1;i++){
+  const d=p[i+1]-p[i];
+  if(d>=0) g+=d; else l-=d;
+ }
+ return 100-(100/(1+(g/l)));
+}
+
+/* =========================
+   VOZ
+========================= */
+function falar(txt){
+ const fraseFinal = txt + ". Autor deste aplicativo, " + AUTOR + ".";
+ const u = new SpeechSynthesisUtterance(fraseFinal);
+ u.lang = "pt-BR";
+ speechSynthesis.cancel();
+ speechSynthesis.speak(u);
+}
+
+/* =========================
+   AUTO EXECUÇÃO AO ABRIR
+========================= */
+window.onload = () => {
+ verificarDCA(true);
+
+ const hist = JSON.parse(localStorage.getItem("historicoAportes") || "[]");
+ if(hist.length){
+  const ultimo = hist.at(-1);
+  document.getElementById("ultimoAporte").innerText = `R$ ${ultimo.valor}`;
+ }
+
+ if(diasDCA.includes(new Date().getDay())){
+  falar("Aplicativo aberto. Hoje é dia de comprar Bitcoin.");
+ }
+};
+</script>
+
+</body>
+</html>
